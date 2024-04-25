@@ -3,7 +3,7 @@ import webpack from 'webpack';
 import HtmlWebpackPlugin from "html-webpack-plugin";
 import type { Configuration as DevServerConfiguration } from "webpack-dev-server";
 
-type Mode = 'development' | 'production';
+type Mode = 'development' | 'production'| 'none';
 
 interface EnvVariables {
     mode: Mode;
@@ -15,7 +15,7 @@ export default (env: EnvVariables) => {
 
     const config: webpack.Configuration = {
         mode: env.mode ?? 'development',
-        entry: path.resolve(__dirname, 'src', 'index.ts'),
+        entry: path.resolve(__dirname, 'src', 'index.tsx'),
         output: {
             path: path.resolve(__dirname, 'build'),
             filename: "[name].[contenthash].js",
@@ -23,8 +23,8 @@ export default (env: EnvVariables) => {
         },
         plugins: [
             new HtmlWebpackPlugin({template: path.resolve(__dirname, 'public', 'index.html')}),
-            new webpack.ProgressPlugin()
-        ],
+            isDev && new webpack.ProgressPlugin()
+        ].filter(Boolean),
         module: {
             rules: [
                 {
@@ -41,7 +41,7 @@ export default (env: EnvVariables) => {
         devServer: isDev ? {
             port: env.port ?? 3000,
             open: true
-        } : undefined
+        } : undefined,
     }
     return config
 }
